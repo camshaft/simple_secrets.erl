@@ -34,7 +34,8 @@ build_body(Data)->
 
 body_to_data(Body)->
   <<_Nonce:16/binary, Bindata/binary>> = Body,
-  simple_secrets_primatives:deserialize(Bindata).
+  {ok, Data} = simple_secrets_primatives:deserialize(Bindata),
+  Data.
 
 encrypt_body(Body, Master)->
   Key = simple_secrets_primatives:derive_sender_key(Master),
@@ -61,7 +62,8 @@ verify(Packet, Master, KeyId)->
       Mac = simple_secrets_primatives:mac(Data, HmacKey),
       case simple_secrets_primatives:compare(PacketMac, Mac) of
         true ->
-          binary:part(Data,{6,byte_size(Data)});
+          <<_:6/binary, Body/binary>> = Data,
+          Body;
         _ ->
           false
       end;
