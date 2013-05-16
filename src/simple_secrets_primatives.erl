@@ -20,7 +20,7 @@ nonce()->
   crypto:strong_rand_bytes(16).
 
 derive(MasterKey, Role)->
-  erlsha2:sha256([MasterKey,Role]).
+  crypto:hash(sha256, [MasterKey,Role]).
 
 derive_sender_hmac(MasterKey)->
   derive(MasterKey, <<"simple-crypto/sender-hmac-key">>).
