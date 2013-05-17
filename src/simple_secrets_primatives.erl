@@ -36,15 +36,14 @@ derive_receiver_key(MasterKey)->
 
 encrypt(Buffer, Key)->
   IV = nonce(),
-  Cipher = crypto:aes_ctr_encrypt(Key, IV, Buffer),
+  Cipher = crypto:aes_cbc_256_encrypt(Key, IV, pkcs7:pad(Buffer)),
   <<IV/binary, Cipher/binary>>.
 
 decrypt(Buffer, Key, IV)->
-  crypto:aes_ctr_decrypt(Key, IV, Buffer).
+  pkcs7:unpad(crypto:aes_cbc_256_decrypt(Key, IV, Buffer)).
 
 identify(Buffer)->
-  Length = byte_size(Buffer),
-  Hash = <<Length, Buffer/binary>>,
+  Hash = crypto:hash(sha256, [<<(byte_size(Buffer))>>, Buffer]),
   binary:part(Hash, {0, 6}).
 
 mac(Buffer, HmacKey)->
@@ -65,10 +64,13 @@ serialize(Object)->
   msgpack:pack(Object).
 
 deserialize(Buffer)->
-  msgpack:unpack(Buffer).
+  case msgpack:unpack(Buffer) of
+    {ok, Data} -> Data;
+    Error -> Error
+  end.
 
 websafe_encode(Buffer)->
-  binary:replace(binary:replace(Buffer, <<"/">>, <<"_">>, [global]), <<"+">>, <<"-">>, [global]).
+  binary:replace(binary:replace(binary:replace(Buffer, <<"/">>, <<"_">>, [global]), <<"+">>, <<"-">>, [global]), <<"=">>, <<"">>, [global]).
 
 websafe_decode(Buffer)->
   binary:replace(binary:replace(pad(Buffer), <<"_">>, <<"/">>, [global]), <<"-">>, <<"+">>, [global]).

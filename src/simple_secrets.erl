@@ -4,8 +4,18 @@
 -export ([pack/2]).
 -export ([unpack/2]).
 
-init(Key) when byte_size(Key) =:= 64 ->
+init(Key) when bit_size(Key) =:= 512 ->
+  init(hex_to_bin(Key));
+init(Key) when bit_size(Key) =:= 256 ->
   [{master, Key},{keyId, simple_secrets_primatives:identify(Key)}].
+
+hex_to_bin(Hex) when is_binary(Hex) ->
+  hex_to_bin(binary_to_list(Hex));
+hex_to_bin(Hex) ->
+  << <<(list_to_integer([H], 16)):4>> || H <- Hex >>.
+
+% bin_to_hex(Bin) ->
+%   [hd(integer_to_list(I, 16)) || <<I:4>> <= Bin].
 
 pack(Data, Packet)->
   Master = proplists:get_value(master, Packet),
@@ -34,8 +44,7 @@ build_body(Data)->
 
 body_to_data(Body)->
   <<_Nonce:16/binary, Bindata/binary>> = Body,
-  {ok, Data} = simple_secrets_primatives:deserialize(Bindata),
-  Data.
+  simple_secrets_primatives:deserialize(Bindata).
 
 encrypt_body(Body, Master)->
   Key = simple_secrets_primatives:derive_sender_key(Master),
