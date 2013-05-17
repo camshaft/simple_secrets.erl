@@ -24,6 +24,12 @@ recover_text_test()->
   DecMessage = simple_secrets:unpack(EncMessage, Sender),
   ?assertEqual(Message, DecMessage).
 
+decrypt_from_nodejs_test()->
+  Sender = simple_secrets:init(?MASTER_KEY),
+  EncMessage = <<"bBDTl5NK8dmoh79nbNGph_2PiHWqS7pBiGzuANuYV3TBuh2hEHBNk2MsGzjYZzS2xEufJmgww5p9nXwzyuBPQfQ6mejIcpHwinccraqKMw4155--9FI">>,
+  DecMessage = simple_secrets:unpack(EncMessage, Sender),
+  ?assertEqual({[{<<"u">>,123456},{<<"s">>,[1,2,3,4]}]}, DecMessage).
+
 unrecoverable_text_test()->
   Message = <<"this is a secret message">>,
   Sender = simple_secrets:init(?MASTER_KEY),
