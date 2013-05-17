@@ -20,8 +20,8 @@ unpack(Websafe, Packet)->
   KeyId = proplists:get_value(keyId, Packet),
   BinMsg = simple_secrets_primatives:binify(Websafe),
   case verify(BinMsg, Master, KeyId) of
-    false ->
-      false;
+    {error, _} = Error ->
+      Error;
     CipherData ->
       Body = decrypt_body(CipherData, Master),
       body_to_data(Body)
@@ -65,8 +65,8 @@ verify(Packet, Master, KeyId)->
           <<_:6/binary, Body/binary>> = Data,
           Body;
         _ ->
-          false
+          {error, mac_mismatch}
       end;
     _ ->
-      false
+      {error, key_mismatch}
   end.

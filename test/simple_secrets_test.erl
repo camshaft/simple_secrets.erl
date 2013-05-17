@@ -30,7 +30,7 @@ unrecoverable_text_test()->
   Sender2 = simple_secrets:init(?OTHER_MASTER_KEY),
   EncMessage = simple_secrets:pack(Message, Sender),
   DecMessage = simple_secrets:unpack(EncMessage, Sender2),
-  ?assertEqual(false, DecMessage).
+  ?assertEqual({error, key_mismatch}, DecMessage).
 
 proper_test_() ->
     [{atom_to_list(F),
