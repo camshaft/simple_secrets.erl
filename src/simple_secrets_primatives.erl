@@ -56,13 +56,34 @@ compare(_, _)->
   false.
 
 binify(String)->
-  base64:decode(String).
+  base64:decode(websafe_decode(String)).
 
 stringify(Buffer)->
-  base64:encode(Buffer).
+  websafe_encode(base64:encode(Buffer)).
 
 serialize(Object)->
   msgpack:pack(Object).
 
 deserialize(Buffer)->
   msgpack:unpack(Buffer).
+
+websafe_encode(Buffer)->
+  binary:replace(binary:replace(Buffer, <<"/">>, <<"_">>, [global]), <<"+">>, <<"-">>, [global]).
+
+websafe_decode(Buffer)->
+  binary:replace(binary:replace(pad(Buffer), <<"_">>, <<"/">>, [global]), <<"-">>, <<"+">>, [global]).
+
+pad(Buffer)->
+  case byte_size(Buffer) rem 4 of
+    0 -> Buffer;
+    Diff -> pad(Buffer, 4-Diff)
+  end.
+
+pad(Buffer, 0)->
+  Buffer;
+pad(Buffer, 1)->
+  <<Buffer/binary,"=">>;
+pad(Buffer, 2)->
+  <<Buffer/binary,"==">>;
+pad(Buffer, 3)->
+  <<Buffer/binary,"===">>.
