@@ -4,7 +4,7 @@
 -export ([pack/2]).
 -export ([unpack/2]).
 
-init(Key)->
+init(Key) when byte_size(Key) =:= 64 ->
   [{master, Key},{keyId, simple_secrets_primatives:identify(Key)}].
 
 pack(Data, Packet)->
