@@ -70,10 +70,19 @@ deserialize(Buffer)->
   end.
 
 websafe_encode(Buffer)->
-  binary:replace(binary:replace(binary:replace(Buffer, <<"/">>, <<"_">>, [global]), <<"+">>, <<"-">>, [global]), <<"=">>, <<"">>, [global]).
+  << <<(websafe_encode_char(B))/binary>> || <<B>> <= Buffer >>.
+
+websafe_encode_char($=) -> <<>>;
+websafe_encode_char($+) -> <<"-">>;
+websafe_encode_char($/) -> <<"_">>;
+websafe_encode_char(C) -> <<C>>.
 
 websafe_decode(Buffer)->
-  binary:replace(binary:replace(pad(Buffer), <<"_">>, <<"/">>, [global]), <<"-">>, <<"+">>, [global]).
+  pad(<< <<(websafe_decode_char(B))/binary>> || <<B>> <= Buffer >>).
+
+websafe_decode_char($-) -> <<"+">>;
+websafe_decode_char($_) -> <<"/">>;
+websafe_decode_char(C) -> <<C>>.
 
 pad(Buffer)->
   case byte_size(Buffer) rem 4 of
