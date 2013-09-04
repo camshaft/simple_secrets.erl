@@ -36,11 +36,11 @@ derive_receiver_key(MasterKey)->
 
 encrypt(Buffer, Key)->
   IV = nonce(),
-  Cipher = crypto:aes_cbc_256_encrypt(Key, IV, pkcs7:pad(Buffer)),
+  Cipher = crypto:block_encrypt(aes_cbc256, Key, IV, pkcs7:pad(Buffer)),
   <<IV/binary, Cipher/binary>>.
 
 decrypt(Buffer, Key, IV)->
-  pkcs7:unpad(crypto:aes_cbc_256_decrypt(Key, IV, Buffer)).
+  pkcs7:unpad(crypto:block_decrypt(aes_cbc256, Key, IV, Buffer)).
 
 identify(Buffer)->
   Hash = crypto:hash(sha256, [<<(byte_size(Buffer))>>, Buffer]),
