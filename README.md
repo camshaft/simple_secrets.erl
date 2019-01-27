@@ -5,6 +5,7 @@ The erlang implementation of a simple, opinionated library for encrypting small 
 
 * [Node.js](https://github.com/timshadel/simple-secrets)
 * [Ruby](https://github.com/timshadel/simple-secrets.rb)
+* [Rust](https://github.com/timshadel/simple-secrets.rs)
 * [Objective-C](https://github.com/timshadel/SimpleSecrets)
 * [Java](https://github.com/timshadel/simple-secrets.java)
 * [Erlang](https://github.com/CamShaft/simple_secrets.erl)
